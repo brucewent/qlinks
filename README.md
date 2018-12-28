@@ -1,5 +1,4 @@
-qlinks
-======
+# qlinks
 
 This is a command line script to test the links on a web site.
 
