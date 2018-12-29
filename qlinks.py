@@ -15,14 +15,14 @@ def query_link (url, recurse):
     global recursion_level, pages_done, urls_checked, data
 
     # header string derived from a browser session
-    headers = {"Pragma":"no-cache",
-           "Cache-Control":"max-age=0",
-           "Upgrade-Insecure-Requests":"1",
-           "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-           "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-		   "Referer":get_base(url),
-           "accept-encoding":"gzip, deflate, br",
-           "accept-language":"en-US,en;q=0.9"}
+    headers = {"Pragma" : "no-cache",
+           "Cache-Control" : "max-age=0",
+           "Upgrade-Insecure-Requests" : "1",
+           "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+           "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+           "Referer" : get_base(url),
+           "Accept-Encoding" : "gzip, deflate, br",
+           "Accept-Language" : "en-US,en;q=0.9"}
 
     recursion_level = recursion_level + 1
     prefix_space = recursion_level * "   " + str(recursion_level) + " "
@@ -139,9 +139,9 @@ def write_excel(output):
         print ("No data to write to Excel")
         return
     print ("Writing", len(data), "lines to Excel")
-	
+    
     # convert data (list of dictionaries) to df (pandas DataFrame) 
-	# and then Excel (openpyxl Workbook)
+    # and then Excel (openpyxl Workbook)
 
     df = DataFrame(data)[['Page_Title','Page_URL','Link_Text','Link_URL','Link_Status']]
     wb = Workbook()
@@ -155,20 +155,26 @@ def write_excel(output):
     ws.freeze_panes = ws['A2']
     ws.auto_filter.ref = "A1:E" + str(df.shape[0]+1)
 
+    # column width & label formatting
     cwidth = {'A' : 30, 'B' : 30, 'C' : 30, 'D' : 30, 'E' : 30}
     font = Font(b=True, i=True)
     fill = PatternFill(start_color='cccccc', end_color='cccccc', fill_type='solid')
+
     for xk in cwidth:
         ws.column_dimensions[xk].width = cwidth[xk]
         ws[xk+'1'].font = font
         ws[xk+'1'].fill = fill
+
+    # set the hyperlinks
     for xr in range(df.shape[0]):
         ws['B'+str(xr+2)].hyperlink = ws['B'+str(xr+2)].value
         ws['B'+str(xr+2)].style = "Hyperlink"
         ws['D'+str(xr+2)].hyperlink = ws['D'+str(xr+2)].value
         ws['D'+str(xr+2)].style = "Hyperlink"
 
-    # save & wrap up
+    # save & wrap up 
+    # (loops because you don't want to loose your run when you have the target open in Excel)
+
     trys = 10
     fname = name_date
     fmsg = "finished saving"
@@ -183,6 +189,8 @@ def write_excel(output):
                 fname = name_date + "-" + str(fnum+1)
 
 def main():
+    # Parse the arguments
+	
     parser = argparse.ArgumentParser("qlinks - test the links on a web site")
     parser.add_argument("url", help="Input URL")
     parser.add_argument("--recurse", dest='recurse', action='store_const',
@@ -191,6 +199,8 @@ def main():
                         default="qlinks", help="Output file name (xlsx format)")
     args = parser.parse_args()
 
+    # define the global variables
+	
     global recursion_level, pages_done, urls_checked, data
     recursion_level = -1
     pages_done = []
@@ -208,6 +218,8 @@ def main():
 
     elapsed_time = finish_time - start_time
     print("Elapsed time", elapsed_time)
+
+# The following is required to run as a CLI
 
 if __name__ == '__main__':
     main()
