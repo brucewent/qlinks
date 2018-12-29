@@ -23,7 +23,7 @@ flag will include linked pages on the specified web site.
 Beyond the use case, the purpose was to learn more about and demonstrate:
 
 * Running a Python script on the command line
-* Using requests and BeautifulSoup to retrieve and parse web pages
+* Using requests with BeautifulSoup and lxml to retrieve and parse web pages
 * Using pandas DataFrame and openpyxl to write a spreadsheet
 
 Hopefully there are enough comments in the code to help someone pick up those topics.
@@ -34,6 +34,17 @@ Note: I believe this script should run on Linux or MacOS if the libraries are av
 * ftype Python.File="C:\Program Files (x86)\Microsoft Visual Studio\Shared\Anaconda3_64\python.exe" "%1" %*
 
 where you will want to substitute the path to your Python executable.
+
+### Some References
+
+http://docs.python-requests.org/  
+https://www.crummy.com/software/BeautifulSoup/bs4/doc/  
+https://lxml.de/  
+http://pandas.pydata.org/pandas-docs/stable/  
+https://openpyxl.readthedocs.io/en/stable/  
+https://validator.w3.org/checklink  
+https://en.wikipedia.org/wiki/List_of_HTTP_status_codes  
+https://en.wikipedia.org/wiki/List_of_HTTP_header_fields  
 
 ### License
 
