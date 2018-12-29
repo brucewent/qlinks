@@ -1,8 +1,7 @@
-
 # qlinks
-​
+
 This is a Python command line script to test the links on a web site.
-​
+
 ```
 usage: qlinks - test the links on a web site [--help]
                                              [--recurse]
@@ -35,3 +34,7 @@ Note: I believe this script should run on Linux or MacOS if the libraries are av
 * ftype Python.File="C:\Program Files (x86)\Microsoft Visual Studio\Shared\Anaconda3_64\python.exe" "%1" %*
 
 where you will want to substitute the path to your Python executable.
+
+### License
+
+See the LICENSE file for license rights and limitations (MIT).
