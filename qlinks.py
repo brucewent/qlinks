@@ -14,11 +14,13 @@ from openpyxl.styles import PatternFill, Font
 def query_link (url, recurse):
     global recursion_level, pages_done, urls_checked, data
 
-    headers = {"pragma":"no-cache",
-           "cache-control":"max-age=0",
-           "upgrade-insecure-requests":"1",
-           "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36",
-           "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+    # header string derived from a browser session
+    headers = {"Pragma":"no-cache",
+           "Cache-Control":"max-age=0",
+           "Upgrade-Insecure-Requests":"1",
+           "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+           "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+		   "Referer":get_base(url),
            "accept-encoding":"gzip, deflate, br",
            "accept-language":"en-US,en;q=0.9"}
 
@@ -49,9 +51,7 @@ def query_link (url, recurse):
         except ValueError:
             pass
         pages_done.append(url)
-        #print ("")
         print (prefix_space + "Page", url, page_status)
-        #print ("")
         recursion_level = recursion_level - 1
         return
 
@@ -74,9 +74,7 @@ def query_link (url, recurse):
     # add it to the list of URLs done
     pages_done.append(base_url)
 
-    #print ("")
     print (prefix_space + "Page \"" + page_title + "\"(" + base_url + ")")
-    #print ("")
 
     # find all of the links and iterate over them
     links = soup.findAll('a')
@@ -92,9 +90,7 @@ def query_link (url, recurse):
         except Exception as e:
             continue
 
-        #print (a.text.strip().replace('\n',' '), link_href)
         link_url = urljoin(base_url, link_href)
-        #print (link_url)
 
         link_status = 'OK'
         try:
@@ -110,13 +106,12 @@ def query_link (url, recurse):
             link_status = "Unhandled: " + str(e)
             pass
 
-        #print (status)
-        #print ("")
+        # add links to increase console verbosity
         #print (prefix_space + "Link \"" + a.text.strip().replace('\n',' ') + "\" (" + link_url + ") " + link_status)
 
         data.append({ 'Page_Title' : page_title, \
                       'Page_URL'   : base_url, \
-                      'Link_Title' : a.text.strip().replace('\n',' '), \
+                      'Link_Text' : a.text.strip().replace('\n',' '), \
                       'Link_URL'   : link_url, \
                       'Link_Status' : link_status })
 
@@ -126,15 +121,6 @@ def query_link (url, recurse):
 
         if recurse and link_status == 'OK' and get_base(base_url) == get_base(link_url):
             query_link(link_url, recurse)
-
-    #print ("*** Completed page", base_url, "***")
-    #if links_checked > 0:
-        #print ("")
-
-    #if recursion_level == 0:
-        #print ("")
-        #print(pages_done)
-        #print ("")
 
     recursion_level = recursion_level - 1
     return
@@ -148,9 +134,16 @@ def get_base(url):
     return my_url[:p2]
 
 def write_excel(output):
+    global data
+    if len(data) == 0:
+        print ("No data to write to Excel")
+        return
+    print ("Writing", len(data), "lines to Excel")
+	
+    # convert data (list of dictionaries) to df (pandas DataFrame) 
+	# and then Excel (openpyxl Workbook)
 
-    # convert data (list of dictionaries) to df (pandas DataFrame) and then Excel (openpyxl Workbook)
-    df = DataFrame(data)[['Page_Title','Page_URL','Link_Title','Link_URL','Link_Status']]
+    df = DataFrame(data)[['Page_Title','Page_URL','Link_Text','Link_URL','Link_Status']]
     wb = Workbook()
     ws = wb.active
     for r in dataframe_to_rows(df, index=False, header=True):
