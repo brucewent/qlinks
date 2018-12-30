@@ -1,10 +1,9 @@
 # qlinks
 # Test the links on a web site
 
-import sys,argparse
-import datetime
-import requests
+import sys, argparse, datetime
 from urllib.parse import urljoin
+import requests
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 from openpyxl import Workbook
