@@ -105,8 +105,10 @@ def query_link (url, recurse):
             link_status = "Unhandled: " + str(e)
             pass
 
-        # add links to increase console verbosity
+        # print links to increase console verbosity
         #print (prefix_space + "Link \"" + a.text.strip().replace('\n',' ') + "\" (" + link_url + ") " + link_status)
+
+        # add it to the list
 
         data.append({ 'Page_Title' : page_title, \
                       'Page_URL'   : base_url, \
@@ -137,9 +139,8 @@ def write_excel(output):
     if len(data) == 0:
         print ("No data to write to Excel")
         return
-    print ("Writing", len(data), "lines to Excel")
-    
-    # convert data (list of dictionaries) to df (pandas DataFrame) 
+
+    # convert data (list of dictionaries) to df (pandas DataFrame)
     # and then Excel (openpyxl Workbook)
 
     df = DataFrame(data)[['Page_Title','Page_URL','Link_Text','Link_URL','Link_Status']]
@@ -171,25 +172,25 @@ def write_excel(output):
         ws['D'+str(xr+2)].hyperlink = ws['D'+str(xr+2)].value
         ws['D'+str(xr+2)].style = "Hyperlink"
 
-    # save & wrap up 
-    # (loops because you don't want to loose your run when you have the target open in Excel)
+    # save & wrap up (loops to avoid file open errors)
 
     trys = 10
     fname = name_date
-    fmsg = "finished saving"
     for fnum in range (trys):
         try:
             wb.save(fname + ".xlsx")
+            print ("Wrote", len(data), "lines to", fname + ".xlsx")
+            break
         except Exception as e:
             if fnum+1 == trys:
-                fmsg = "failed to save"
                 print(e)
             else:
                 fname = name_date + "-" + str(fnum+1)
+    return
 
 def main():
     # Parse the arguments
-	
+
     parser = argparse.ArgumentParser("qlinks - test the links on a web site")
     parser.add_argument("url", help="Input URL")
     parser.add_argument("--recurse", dest='recurse', action='store_const',
@@ -199,7 +200,7 @@ def main():
     args = parser.parse_args()
 
     # define the global variables
-	
+
     global recursion_level, pages_done, urls_checked, data
     recursion_level = -1
     pages_done = []
@@ -217,6 +218,8 @@ def main():
 
     elapsed_time = finish_time - start_time
     print("Elapsed time", elapsed_time)
+
+    return
 
 # The following is required to run as a CLI
 
