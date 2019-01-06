@@ -13,67 +13,91 @@ from openpyxl.styles import PatternFill, Font
 def query_link (url, recurse):
     global recursion_level, pages_done, urls_checked, data
 
-    # header string derived from a browser session
-    headers = {"Pragma" : "no-cache",
-           "Cache-Control" : "max-age=0",
-           "Upgrade-Insecure-Requests" : "1",
-           "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-           "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-           "Referer" : get_base(url),
-           "Accept-Encoding" : "gzip, deflate, br",
-           "Accept-Language" : "en-US,en;q=0.9"}
-
     recursion_level = recursion_level + 1
     prefix_space = recursion_level * "   " + str(recursion_level) + " "
 
-    # read the referenced page
-    page_status = "OK"
-    try:
-        r1 = requests.get(url,headers=headers,timeout=10)
+    while True:
+        # header string derived from a browser session
+        headers = {"Pragma" : "no-cache",
+            "Cache-Control" : "max-age=0",
+            "Upgrade-Insecure-Requests" : "1",
+            "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+            "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+            "Referer" : get_base(url),
+            "Accept-Encoding" : "gzip, deflate, br",
+            "Accept-Language" : "en-US,en;q=0.9"}
+        page_status = "OK"
 
-    # catch all errors handled by requests
-    except requests.exceptions.RequestException as e:
-        page_status = "ConnectErr: " + str(e)
-        pass
-
-    # should catch the rest
-    except Exception as e:
-        page_status = "Unhandled: " + str(e)
-        pass
-
-    # return if the page was not available
-    if page_status != "OK":
+        # read the referenced page
         try:
-            if pages_done.index(url) >= 0:
+            r1 = requests.get(url, headers=headers, timeout=10)
+
+        # catch all errors handled by requests
+        except requests.exceptions.RequestException as e:
+            page_status = "ConnectErr: " + str(e)
+            pass
+
+        # should catch the rest
+        except Exception as e:
+            page_status = "Unhandled: " + str(e)
+            pass
+
+        # return if the page was not available
+        if page_status != "OK":
+            try:
+                if pages_done.index(url) >= 0:
+                    recursion_level = recursion_level - 1
+                    return
+            except ValueError:
+                pass
+            pages_done.append(url)
+            print (prefix_space + "Page", url, page_status)
+            recursion_level = recursion_level - 1
+            return
+
+        # parse to a BeautifulSoup object
+        soup = BeautifulSoup(r1.text, "lxml")
+        try:
+            page_title = soup.title.text
+        except AttributeError:
+            page_title = ""
+        base_url = r1.url
+
+        # quit if we did this before
+        try:
+            if pages_done.index(base_url) >= 0:
                 recursion_level = recursion_level - 1
                 return
         except ValueError:
             pass
-        pages_done.append(url)
-        print (prefix_space + "Page", url, page_status)
-        recursion_level = recursion_level - 1
-        return
 
-    # parse to a BeautifulSoup object
-    soup = BeautifulSoup(r1.text, "lxml")
-    try:
-        page_title = soup.title.text
-    except AttributeError:
-        page_title = ""
-    base_url = r1.url
+        # add it to the list of URLs done
+        pages_done.append(base_url)
 
-    # quit if we did this before
-    try:
-        if pages_done.index(base_url) >= 0:
-            recursion_level = recursion_level - 1
-            return
-    except ValueError:
-        pass
+        print (prefix_space + "Page \"" + page_title + "\"(" + base_url + ")")
 
-    # add it to the list of URLs done
-    pages_done.append(base_url)
+        # look for meta refresh redirects
+        metas = soup.findAll('meta')
+        redir_url = ""
+        for meta in metas:
+            try:
+                if meta['http-equiv'] == "Refresh":
+                    try:
+                        content = meta['content']
+                        p1 = content.find("=") + 1
+                        if p1 > 0:
+                            redir_url = content[p1:]
+                        break
+                    except KeyError:
+                        pass
+            except KeyError:
+                pass
+        url = urljoin(base_url, redir_url)
 
-    print (prefix_space + "Page \"" + page_title + "\"(" + base_url + ")")
+        # exit the forever loop
+        if url == base_url:
+            break
+        print(prefix_space + "Redirecting...")
 
     # find all of the links and iterate over them
     links = soup.findAll('a')
@@ -90,6 +114,9 @@ def query_link (url, recurse):
             continue
 
         link_url = urljoin(base_url, link_href)
+
+        if link_url.lower()[:4] != "http":
+            continue
 
         link_status = 'OK'
         try:
@@ -110,17 +137,20 @@ def query_link (url, recurse):
 
         # add it to the list
 
-        data.append({ 'Page_Title' : page_title, \
-                      'Page_URL'   : base_url, \
-                      'Link_Text' : a.text.strip().replace('\n',' '), \
-                      'Link_URL'   : link_url, \
+        data.append({ 'Page_Title' : page_title,
+                      'Page_URL' : base_url,
+                      'Link_Text' : a.text.strip().replace('\n',' '),
+                      'Link_URL' : link_url,
                       'Link_Status' : link_status })
 
         links_checked = links_checked + 1
 
         # recurse if requested and the link is to the root site
 
-        if recurse and link_status == 'OK' and get_base(base_url) == get_base(link_url):
+        if recurse and \
+                link_status == 'OK' and \
+                get_base(base_url) == get_base(link_url) and \
+                r2.headers['content-type'].find('text/html') > -1:
             query_link(link_url, recurse)
 
     recursion_level = recursion_level - 1
