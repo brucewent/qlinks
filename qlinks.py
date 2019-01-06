@@ -226,7 +226,7 @@ def main():
     parser.add_argument("--recurse", dest='recurse', action='store_const',
                         const=True, default=False, help="Recurse through links on the site")
     parser.add_argument("--output", dest='output', type=str,
-                        default="qlinks", help="Output file name (xlsx format)")
+                        default="qlinks", help="Output file (default qlinks): \"<OUTPUT> YYYY-MM-DD.xlsx\"")
     args = parser.parse_args()
 
     # define the global variables

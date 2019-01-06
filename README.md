@@ -13,7 +13,7 @@ positional arguments:
 optional arguments:
   -h, --help       show this help message and exit
   --recurse        Recurse through links on the site
-  --output OUTPUT  Output file name (xlsx format)
+  --output OUTPUT  Output file (default qlinks): "<OUTPUT> YYYY-MM-DD.xlsx"
 ```
 
 **qlinks** was developed on Windows 10 with Python 3.7. The primary use case is
@@ -29,7 +29,7 @@ Beyond the use case, the purpose was to learn more about and demonstrate:
 Hopefully there are enough comments in the code to help someone pick up those topics. 
 Please let me know if you have found this useful, or have any questions or suggestions.
 
-Note: I believe this script should run on Linux or MacOS if the libraries are available.  
+Note: I believe this script should run on Linux or MacOS if the libraries are available. 
 I used the following two steps to enable command line execution on Windows:
 
 * assoc .py=Python.File
