@@ -22,12 +22,13 @@ linked pages on the specified web site. Output is to an Excel xlsx spreadsheet.
 
 Beyond the use case, the purpose was to learn more about and demonstrate:
 
-* Running a Python script on the command line
+* Running a Python script on the command line using argparse
 * Using requests with BeautifulSoup and lxml to retrieve and parse web pages
 * Using pandas DataFrame and openpyxl to write a spreadsheet
 
 Hopefully there are enough comments in the code to help someone pick up those topics. 
-Please let me know if you have found this useful, or have any questions or suggestions.
+Please let me know if you have found this useful, have any questions/suggestions, or 
+have found an interesting web site that breaks it.
 
 Note: I believe this script should run on Linux or MacOS if the libraries are available. 
 I used the following two steps to enable command line execution on Windows:
