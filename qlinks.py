@@ -222,7 +222,8 @@ def main():
     # Parse the arguments
 
     parser = argparse.ArgumentParser("qlinks - test the links on a web site")
-    parser.add_argument("url", help="Input URL")
+    parser.add_argument("url", help="Input primary starting point URL, optional supporting URLS",
+                        nargs="+")
     parser.add_argument("--recurse", dest='recurse', action='store_const',
                         const=True, default=False, help="Recurse through links on the site")
     parser.add_argument("--output", dest='output', type=str,
@@ -231,7 +232,8 @@ def main():
 
     # define the global variables
 
-    global recursion_level, pages_done, urls_checked, data
+    global url_list, recursion_level, pages_done, urls_checked, data
+    url_list = args.url
     recursion_level = -1
     pages_done = []
     urls_checked = []
@@ -240,7 +242,7 @@ def main():
     start_time = datetime.datetime.now()
     print(start_time,"- qlinks starting")
 
-    query_link(args.url, args.recurse)
+    query_link(args.url[0], args.recurse)
     write_excel(args.output)
 
     finish_time = datetime.datetime.now()
