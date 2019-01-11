@@ -147,6 +147,8 @@ def query_link (url, recurse):
 
         # recurse if requested and the link is to the root site
 
+        # -> need to expand this check over url_list[]
+
         if recurse and \
                 link_status == 'OK' and \
                 get_base(base_url) == get_base(link_url) and \
