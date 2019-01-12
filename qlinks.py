@@ -51,7 +51,7 @@ def query_link (url, recurse):
             except ValueError:
                 pass
             pages_done.append(url)
-            print (prefix_space + "Page", url, page_status)
+            print(prefix_space + "Page", url, page_status)
             recursion_level = recursion_level - 1
             return
 
@@ -74,7 +74,7 @@ def query_link (url, recurse):
         # add it to the list of URLs done
         pages_done.append(base_url)
 
-        print (prefix_space + "Page \"" + page_title + "\"(" + base_url + ")")
+        print(prefix_space + "Page \"" + page_title + "\"(" + base_url + ")")
 
         # look for meta refresh redirects
         metas = soup.findAll('meta')
@@ -145,13 +145,18 @@ def query_link (url, recurse):
 
         links_checked = links_checked + 1
 
-        # recurse if requested and the link is to the root site
+        # see if the link is in scope for recursion
 
-        # -> need to expand this check over url_list[]
+        url_in_scope = False
+        if get_base(base_url) == get_base(link_url):
+            url_in_scope = True
+        for i_url in url_list[1:]:
+            if get_base(i_url) == get_base(link_url):
+                url_in_scope = True
 
-        if recurse and \
-                link_status == 'OK' and \
-                get_base(base_url) == get_base(link_url) and \
+        # recurse if requested and the link is in scope
+
+        if recurse and url_in_scope and link_status == 'OK' and \
                 r2.headers['content-type'].find('text/html') > -1:
             query_link(link_url, recurse)
 
