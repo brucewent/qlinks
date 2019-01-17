@@ -3,12 +3,12 @@
 This is a Python command line script to test the links on a web site.
 
 ```
-usage: qlinks - test the links on a web site [--help]
+usage: qlinks - test the links on a web site [-h] 
                                              [--recurse]
                                              [--output OUTPUT]
-                                             url
+                                             url [url ...]
 positional arguments:
-  url              Input URL
+  url              Input primary starting point URL, optional supporting URLS
 
 optional arguments:
   -h, --help       show this help message and exit
