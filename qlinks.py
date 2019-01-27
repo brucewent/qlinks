@@ -13,8 +13,47 @@ from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import PatternFill, Font
 
+def main():
+    # Parse the arguments, query the links, write out the results
+
+    parser = argparse.ArgumentParser("qlinks - test the links on a web site")
+    parser.add_argument("url", help="Input primary starting point URL, optional supporting URLS",
+                        nargs="+")
+    parser.add_argument("--recurse", dest='recurse', action='store_const',
+                        const=True, default=False, help="Recurse through links on the site")
+    parser.add_argument("--output", dest='output', type=str,
+                        default="qlinks", help="Output file (default qlinks): \"<OUTPUT> YYYY-MM-DD.xlsx\"")
+    args = parser.parse_args()
+
+    # define the global variables
+
+    global url_list, recursion_level, pages_done, urls_checked, data
+    url_list = args.url
+    recursion_level = -1
+    pages_done = []
+    urls_checked = []
+    data = []
+
+    start_time = datetime.datetime.now()
+    print(start_time,"- qlinks starting")
+
+    query_link(args.url[0], args.recurse)
+    write_excel(args.output)
+
+    finish_time = datetime.datetime.now()
+    print(finish_time, "- qlinks finished")
+
+    elapsed_time = finish_time - start_time
+    print("Elapsed time", elapsed_time)
+
+    return
+
 def query_link (url, recurse):
+    # retrieves the URL and examines the links on it
+
     global recursion_level, pages_done, urls_checked, data
+
+    joe_blow = False
 
     recursion_level = recursion_level + 1
     prefix_space = recursion_level * "   " + str(recursion_level) + " "
@@ -70,6 +109,7 @@ def query_link (url, recurse):
         try:
             if pages_done.index(base_url) >= 0:
                 recursion_level = recursion_level - 1
+                joe_blow = True
                 return
         except ValueError:
             pass
@@ -167,6 +207,8 @@ def query_link (url, recurse):
     return
 
 def get_base(url):
+    # Parses the base (domain) component of an URL
+
     my_url = url
     if my_url[len(my_url)-1:] != "/":
         my_url = my_url + "/"
@@ -175,6 +217,8 @@ def get_base(url):
     return my_url[:p2]
 
 def write_excel(output):
+    # writes the results to Excel
+
     global data
     if len(data) == 0:
         print ("No data to write to Excel")
@@ -228,42 +272,7 @@ def write_excel(output):
                 fname = name_date + "-" + str(fnum+1)
     return
 
-def main():
-    # Parse the arguments
-
-    parser = argparse.ArgumentParser("qlinks - test the links on a web site")
-    parser.add_argument("url", help="Input primary starting point URL, optional supporting URLS",
-                        nargs="+")
-    parser.add_argument("--recurse", dest='recurse', action='store_const',
-                        const=True, default=False, help="Recurse through links on the site")
-    parser.add_argument("--output", dest='output', type=str,
-                        default="qlinks", help="Output file (default qlinks): \"<OUTPUT> YYYY-MM-DD.xlsx\"")
-    args = parser.parse_args()
-
-    # define the global variables
-
-    global url_list, recursion_level, pages_done, urls_checked, data
-    url_list = args.url
-    recursion_level = -1
-    pages_done = []
-    urls_checked = []
-    data = []
-
-    start_time = datetime.datetime.now()
-    print(start_time,"- qlinks starting")
-
-    query_link(args.url[0], args.recurse)
-    write_excel(args.output)
-
-    finish_time = datetime.datetime.now()
-    print(finish_time, "- qlinks finished")
-
-    elapsed_time = finish_time - start_time
-    print("Elapsed time", elapsed_time)
-
-    return
-
-# The following is required to run as a CLI
+# The following executes when run as a CLI
 
 if __name__ == '__main__':
     main()
