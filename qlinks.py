@@ -1,7 +1,8 @@
+#
 # qlinks.py
 # Test the links on a web site
-# https://github.com/brucewent/qlinks
-# MIT License
+# https://github.com/brucewent/qlinks is licensed under the MIT License
+#
 
 import sys, argparse, datetime
 from urllib.parse import urljoin
