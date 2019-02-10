@@ -34,7 +34,7 @@ Note: I believe this script should run on Linux or MacOS if the libraries are av
 I used the following two steps to enable command line execution on Windows:
 
 * assoc .py=Python.File
-* ftype Python.File="C:\Program Files (x86)\Microsoft Visual Studio\Shared\Anaconda3_64\python.exe" "%1" %*
+* ftype Python.File="d:\programdata\anaconda3\python.exe" "%1" %*
 
 where you will want to substitute the path to your Python executable. Please see the 
 file pipshow.txt for information on my environment.
