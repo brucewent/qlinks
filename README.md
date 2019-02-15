@@ -18,9 +18,9 @@ optional arguments:
 
 **qlinks** was developed on Windows 10 with Python 3.7. The primary use case is
 checking that the links on a web site remain valid. The recurse flag will include 
-linked pages on the specified web site. Output is to an Excel xlsx spreadsheet.
+linked pages on the specified web site(s). Output is to an Excel xlsx spreadsheet.
 
-Beyond the use case, the purpose was to learn more about and demonstrate:
+Beyond the use case, the purpose was also to learn more about and demonstrate:
 
 * Running a Python script on the command line using argparse
 * Using requests with BeautifulSoup and lxml to retrieve and parse web pages
@@ -37,7 +37,7 @@ I used the following two steps to enable command line execution on Windows:
 * ftype Python.File="d:\programdata\anaconda3\python.exe" "%1" %*
 
 where you will want to substitute the path to your Python executable. Please see the 
-file pipshow.txt for information on my environment.
+file pipshow.txt for more detailed information on my environment.
 
 ### Some References
 
